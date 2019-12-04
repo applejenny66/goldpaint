@@ -1,0 +1,80 @@
+<launch>
+  <arg name="tf_prefix" default=""/>
+  <arg name="safety_controller" default="true"/>
+  <arg name="use_imu" default="false"/>
+  <arg name="mapping" default="false"/>
+  <arg name="rqt_steering" default="false"/>
+  <arg name="joint_state_controller" default="scorpio_joint_state_controller"/>
+  <arg name="diff_drive_controller" default="scorpio_diff_drive_controller"/>
+  <arg name="model" default="$(find scorpio_description)/robots/scorpio.urdf.xacro"/>
+  <arg name="diffconfig" default="$(find scorpio_base_ros_control)/config/scorpio_base_ros_control_real.yaml"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <param name="scorpio_diff_drive_controller/enable_odom_tf" value="false" if="$(arg use_imu)"/>
+  <param name="scorpio_diff_drive_controller/enable_odom_tf" value="true"  unless="$(arg use_imu)"/>
+
+  <rosparam command="load" file="$(arg diffconfig)"/>
+  <rosparam param="$(arg diff_drive_controller)/base_frame_id" subst_value="True">
+    $(arg tf_prefix)/base_footprint
+  </rosparam>
+  <rosparam param="$(arg diff_drive_controller)/odom_frame_id" subst_value="True">
+    $(arg tf_prefix)/odom
+  </rosparam>
+  <rosparam param="$(arg diff_drive_controller)/enable_odom_tf" subst_value="True" unless="$(arg mapping)">
+    true 
+  </rosparam>
+
+  <!--Spawn Controller-->
+  <node name="diff_controller_spawner" pkg="controller_manager" type="spawner"
+    args="$(arg joint_state_controller)
+          $(arg diff_drive_controller)"/>
+
+  <!--Main control node-->
+  <node name="scorpio_base_ros_control" pkg="scorpio_base_ros_control" type="scorpio_base_ros_control"
+    output="screen" respawn="false" respawn_delay="3"/>
+
+  <!--Publish robot state-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <param name="tf_prefix" value="$(arg tf_prefix)"/>
+  </node>
+
+  <group if="$(arg safety_controller)">
+    <include file="$(find scorpio_safety_controller)/launch/real/safety_controller_real.launch">
+      <arg name="output_cmd_vel_topic" default="$(arg diff_drive_controller)/cmd_vel"/>
+    </include>
+  </group>
+
+  <group if="$(arg use_imu)">
+    <!-- robot_pose_ekf -->
+    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+      <param name="output_frame" value="$(arg tf_prefix)/odom"/>
+      <param name="base_footprint_frame" value="$(arg tf_prefix)/base_footprint"/>
+      <param name="freq" value="30.0"/>
+      <param name="sensor_timeout" value="1.0"/>
+      <param name="odom_used" value="true"/>
+      <param name="imu_used" value="true"/>
+      <param name="vo_used" value="false"/>
+      <param name="debug" value="false"/>
+      <param name="self_diagnose" value="false"/>
+      <remap from="odom" to="$(arg diff_drive_controller)/odom"/>
+      <remap from="imu_data" to="imu"/>
+    </node>
+
+    <!-- razor imu node -->
+    <include file="$(find scorpio_base_ros_control)/launch/razor_imu.launch"/>
+  </group>
+
+  <!--Gui steering console (Optional)-->
+  <group if="$(arg rqt_steering)">
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+      <param name="default_topic" value="$(arg tf_prefix)/cmd_vel" if="$(arg safety_controller)"/>
+      <param name="default_topic" value="$(arg diff_drive_controller)/cmd_vel" unless="$(arg safety_controller)"/>
+      <param name="default_vx_max" value="1.0"/>
+      <param name="default_vx_min" value="-1.0"/>
+    </node>
+  </group>
+
+  <!--Rviz-->
+  <!--node name="rviz" pkg="rviz" type="rviz" required="true"
+    args="-d $(find m700_ros_control)/rviz/m700.rviz" /-->
+</launch>

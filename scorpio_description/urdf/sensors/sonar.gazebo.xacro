@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="sonar_gazebo" params="id ros_topic update_rate ns">
+    <gazebo reference="sonar${id}_link">        
+      <sensor type="ray" name="TeraRanger">
+        <pose>0 0 0 0 0 0</pose>
+        <visualize>false</visualize>
+        <update_rate>${update_rate}</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>10</samples>
+              <resolution>1</resolution> 
+              <min_angle>-0.14835</min_angle>
+              <max_angle>0.14835</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>10</samples>
+              <resolution>1</resolution> 
+              <min_angle>-0.035</min_angle>
+              <max_angle>0.035</max_angle> 
+            </vertical>
+          </scan>
+          <range>
+            <min>0.02</min>
+            <max>4</max>
+            <resolution>0.02</resolution>
+          </range>
+        </ray>
+        <plugin filename="libgazebo_ros_range.so" name="sonar${id}_controller">
+          <robotNamespace>/${ns}</robotNamespace>
+          <gaussianNoise>0.005</gaussianNoise>
+          <alwaysOn>true</alwaysOn>
+          <updateRate>${update_rate}</updateRate>
+          <topicName>${ros_topic}</topicName>
+          <frameName>sonar${id}_link</frameName>
+          <!--radiation>INFRARED</radiation-->
+          <radiation>ULTRASOUND</radiation>
+          <fov>0.2967</fov>
+        </plugin>
+      </sensor>  
+    </gazebo>
+  </xacro:macro>
+</robot>
+

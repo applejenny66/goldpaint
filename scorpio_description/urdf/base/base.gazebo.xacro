@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- base -->
+  <xacro:macro name="scorpio_base_gazebo">
+    <gazebo reference="base_link">
+      <material>Gazebo/White</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- right and left wheels -->
+  <xacro:macro name="scorpio_rl_wheel_gazebo" params="prefix">
+    <gazebo reference="${prefix}_wheel">
+      <material>Gazebo/Black</material>
+      <mu1 value="100.0"/>
+      <mu2 value="100.0"/>
+      <kp value="10000000.0"/>
+      <kd value="1.0"/>
+      <fdir1 falue="1 0 0"/>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- front and back wheels -->
+  <xacro:macro name="scorpio_fb_wheel_gazebo" params="prefix">
+    <gazebo reference="${prefix}_right_wheel">
+      <material>Gazebo/Blue</material>
+      <mu1 value="0.001"/>
+      <mu2 value="0.001"/>
+      <kp value="10000000.0" />
+      <kd value="1.0" />
+      <fdir1 falue="1 0 0"/>
+    </gazebo>
+
+    <gazebo reference="${prefix}_left_wheel">
+      <material>Gazebo/Blue</material>
+      <mu1 value="0.001"/>
+      <mu2 value="0.001"/>
+      <kp value="10000000.0" />
+      <kd value="1.0" />
+      <fdir1 falue="1 0 0"/>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="scorpio_imu_gazebo">
+    <gazebo>
+      <!--hector_gazebo_plugins-->
+      <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+        <robotNamespace>/</robotNamespace>
+        <frameId>base_imu_link</frameId>
+        <updateRate>100.0</updateRate>
+        <bodyName>base_imu_link</bodyName>
+        <topicName>imu</topicName>
+        <accelDrift>0.005 0.005 0.005</accelDrift>
+        <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+        <rateDrift>0.005 0.005 0.005 </rateDrift>
+        <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
+        <headingDrift>0.005</headingDrift>
+        <headingGaussianNoise>0.005</headingGaussianNoise>
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

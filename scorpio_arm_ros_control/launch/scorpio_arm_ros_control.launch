@@ -1,0 +1,16 @@
+<launch>
+  <rosparam command="load" file="$(find ira_factory_robot_controller)/config/scorpio/ros_control/real/controllers.yaml"/>
+
+  <!--Spawn Controller-->
+  <node name="scorpio_arm_controller_spawner" pkg="controller_manager" type="spawner"
+    args="joint_state_controller
+          arm_controller"/>
+
+  <!--Main control node-->
+  <node name="scorpio_arm_ros_control" pkg="scorpio_arm_ros_control" type="scorpio_arm_ros_control"
+    output="screen" respawn="true" respawn_delay="3"/>
+
+  <!-- Remap follow_joint_trajectory -->
+  <!--remap from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/-->
+
+</launch>

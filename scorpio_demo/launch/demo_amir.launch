@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="ns" default="scorpio/mmp0"/>
+    <arg name="rviz" default="true"/>
+    <arg name="rqt" default="true"/>
+
+    <!--robot related-->
+    <include file="$(find scorpio_bringup)/launch/amir_bringup.launch">
+      <arg name="rviz" value="$(arg rviz)"/>
+      <arg name="rqt" value="$(arg rqt)"/>
+    </include>
+
+    <!--slam and localization related-->
+    <include file="$(find scorpio_slam)/launch/scorpio_slam_execution.launch">
+      <arg name="carto" value="true"/>
+      <arg name="slam" value="false"/>
+      <arg name="real" value="true"/>
+    </include>
+
+    <!--navigation related-->
+    <node name="tfServer" pkg="ira_factory_state_machine" type="tfServer.py"/>
+    <include file="$(find scorpio_navigation)/launch/move_base.launch"/>
+    <node name="moving" pkg="scorpio_navigation" type="movebase.py"/>
+
+    <!-- action pose-->
+    <rosparam command="load" file="$(find haf_grasping)/config/config.yaml" />
+    <node name="calc_grasppoints_svm_action_server" pkg="haf_grasping" type="calc_grasppoints_action_server"/>
+    <node name="attack_pose" pkg="arm_plan" type="attack_pose.py"/>
+    <node name="pick_place_ser" pkg="arm_plan" type="pick_place_ser.py" output="screen"/>
+    <node name="test_haf_client" pkg="haf_grasping" type="test_haf_client" output="screen"/>
+
+    <!--Vocal output related, online-->
+    <node name="aiml_tts_google" pkg="pmc_assistant" type="aiml_tts_google.py"/>
+
+    <!--Assistant related-->
+    <param name="aiml_path" value="$(find pmc_assistant)/data" />
+    <node name="aiml_server" pkg="pmc_assistant" type="aiml_server.py"/>
+
+</launch>

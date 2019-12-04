@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot name="scorpio" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="ns" default=""/>
+  <xacro:include filename="$(find scorpio_description)/urdf/arm/arm.urdf.xacro"/>
+  <xacro:include filename="$(find scorpio_description)/urdf/base/base.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_2f_140_gripper_visualization)/urdf/robotiq_arg2f_140_model_macro_fixed.xacro" />
+
+  <!-- gazebo plugin -->
+  <xacro:include filename="$(find scorpio_description)/urdf/common.gazebo.xacro"/>
+
+  <!-- robot base and wheel -->
+  <xacro:scorpio_base ns="$(arg ns)"/>
+
+  <!-- robot arm -->
+  <xacro:scorpio_arm ns="$(arg ns)"/>
+
+  <!-- robot gripper -->
+  <xacro:robotiq_arg2f_140 prefix=""/>
+
+  <!--5cm per grid on car--> <!--surface to ground is 0.455m-->
+  <joint name="base_surface_joint" type="fixed">
+    <!--origin xyz="-0.375 0.125 0.209" rpy="0 0 0" /-->
+    <origin xyz="0 0 0.209" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="surface_link" />
+  </joint>
+  <link name="surface_link"/>
+
+  <joint name="surface_arm_joint" type="fixed">
+    <origin xyz="0.175 -0.175 0" rpy="0 0 0" /> <!--actually there is 0.016m above surface-->
+    <parent link="surface_link" />
+    <child link="arm_base_link" />
+  </joint>
+
+  <joint name="arm_gripper_joint" type="fixed">
+    <origin xyz="0 0 0.027" rpy="0 0 0" /> <!--silver width 0.01 + black width 0.017 -->
+    <parent link="eef_link" />
+    <child link="robotiq_arg2f_base_link" />
+  </joint>
+
+</robot>

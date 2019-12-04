@@ -1,0 +1,2 @@
+
+-G Ninja -DCATKIN_DEVEL_PREFIX=/home/ros/ros_kinetic/src/scorpio/haf_grasping/devel_isolated -DCMAKE_INSTALL_PREFIX=/home/ros/ros_kinetic/src/scorpio/haf_grasping/install_isolated

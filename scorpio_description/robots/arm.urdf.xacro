@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot name="scorpio" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="ns" default=""/>
+  <xacro:include filename="$(find scorpio_description)/urdf/arm/arm.urdf.xacro"/>
+
+  <!-- gazebo plugin -->
+  <xacro:include filename="$(find scorpio_description)/urdf/common.gazebo.xacro"/>
+
+  <!-- robot arm -->
+  <xacro:scorpio_arm ns="$(arg ns)"/>
+
+</robot>

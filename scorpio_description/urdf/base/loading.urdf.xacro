@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="loading_height" value="0.075" />  <!-- This mass might be incorrect -->
+  <xacro:property name="loading_mass" value="6.07" />  <!-- This mass might be incorrect -->
+
+  <!-- Inertia calculating -->
+  <xacro:macro name="cylinder_inertial" params="radius length mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <xacro:insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (3 * radius * radius + length * length)}" ixy="0.0" ixz="0.0"
+        iyy="${0.0833333 * mass * (3 * radius * radius + length * length)}" iyz="0.0"
+        izz="${0.5 * mass * radius * radius}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="fake_loading">
+
+    <joint name="fake_loading1_joint" type="fixed">
+      <origin xyz="0.375 0.125 0.209" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="fake_loading1" />
+    </joint>
+    <link name="fake_loading1">
+      <xacro:cylinder_inertial radius="0.075" length="${loading_height}" mass="${loading_mass}">
+        <origin xyz="0.0 0.0 ${loading_height*0.5}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="fake_loading2_joint" type="fixed">
+      <origin xyz="0.375 -0.125 0.209" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="fake_loading2" />
+    </joint>
+    <link name="fake_loading2">
+      <xacro:cylinder_inertial radius="0.075" length="${loading_height}" mass="${loading_mass}">
+        <origin xyz="0.0 0.0 ${loading_height*0.5}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="fake_loading3_joint" type="fixed">
+      <origin xyz="-0.375 -0.125 0.209" rpy="0 0 0" />
+      <parent link="base_link" />
+      <child link="fake_loading3" />
+    </joint>
+    <link name="fake_loading3">
+      <xacro:cylinder_inertial radius="0.075" length="${loading_height}" mass="${loading_mass}">
+        <origin xyz="0.0 0.0 ${loading_height*0.5}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </collision>
+    </link>
+
+  </xacro:macro>
+</robot>

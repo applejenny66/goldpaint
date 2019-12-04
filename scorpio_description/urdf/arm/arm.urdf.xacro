@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find scorpio_description)/urdf/arm/arm.transmission.xacro" />
+  <xacro:include filename="$(find scorpio_description)/urdf/sensors/_d435.urdf.xacro" />
+
+  <!-- Inertia calculating -->
+  <xacro:macro name="cylinder_inertial" params="radius length mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <xacro:insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (3 * radius * radius + length * length)}" ixy="0.0" ixz="0.0"
+        iyy="${0.0833333 * mass * (3 * radius * radius + length * length)}" iyz="0.0"
+        izz="${0.5 * mass * radius * radius}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- Inertia parameters -->
+  <xacro:property name="base_mass" value="0.01" />  <!-- This mass might be incorrect -->
+  <xacro:property name="shoulder_mass" value="0.007778" />
+  <xacro:property name="upper_arm_mass" value="0.00593" />
+  <xacro:property name="forearm_mass" value="0.00387" />
+  <xacro:property name="wrist_1_mass" value="0.00196" />
+  <xacro:property name="wrist_2_mass" value="0.00096" />
+  <xacro:property name="wrist_3_mass" value="0.000202" />
+
+  <xacro:property name="base_length" value="0.1105" />  <!-- This mass might be incorrect -->
+  <xacro:property name="shoulder_length" value="0.2465" />
+  <xacro:property name="upper_arm_length" value="0.425" />
+  <xacro:property name="forearm_length" value="0.2114" />
+  <xacro:property name="wrist_1_length" value="0.2136" />
+  <xacro:property name="wrist_2_length" value="0.075" />
+  <xacro:property name="wrist_3_length" value="0.01" />
+
+  <!-- Main URDF -->
+  <xacro:macro name="scorpio_arm" params="ns">
+
+    <link name="arm_base_link">
+      <xacro:cylinder_inertial radius="0.075" length="${base_length}" mass="${base_mass}">
+        <origin xyz="0.0 0.0 ${base_length*0.5}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/arm_base_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://scorpio_description/meshes/arm/arm_base_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="axis1_joint" type="revolute">
+      <origin xyz="0 0 0.1105" rpy="0 0 -0.0" />
+      <parent link="arm_base_link" />
+      <child link="axis1_link" />
+      <axis xyz="0 0 1" />
+      <limit lower="-3.14" upper="3.14" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis1_link">
+      <xacro:cylinder_inertial radius="0.075" length="${shoulder_length}" mass="${shoulder_mass}">
+        <origin xyz="0.0 0.0 ${shoulder_length*0.5}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://scorpio_description/meshes/arm/axis1_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis1_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!--joint1 + joint2 = 0.341 + 0.016-->
+    <joint name="axis2_joint" type="revolute">
+      <origin xyz="0 -0.021 0.2465" rpy="0 0 0" />
+      <parent link="axis1_link" />
+      <child link="axis2_link" />
+      <axis xyz="0 -1 0" />
+      <limit lower="-2.09" upper="2.09" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis2_link">
+      <xacro:cylinder_inertial radius="0.075" length="${upper_arm_length}" mass="${upper_arm_mass}">
+        <origin xyz="0.0 0.0 ${upper_arm_length/2}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis2_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis2_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="axis3_joint" type="revolute">
+      <origin xyz="0 -0.013 0.425" rpy="0 0 0" />
+      <parent link="axis2_link" />
+      <child link="axis3_link" />
+      <axis xyz="0 -1 0" />
+      <limit lower="-2.09" upper="0.52" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis3_link">
+      <xacro:cylinder_inertial radius="0.075" length="${forearm_length}" mass="${forearm_mass}">
+        <origin xyz="0.0 0.0 ${forearm_length/2}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis3_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis3_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="axis4_joint" type="revolute">
+      <origin xyz="0 0.034 0.2114" rpy="0 0 0" />
+      <parent link="axis3_link" />
+      <child link="axis4_link" />
+      <axis xyz="0 0 1" />
+      <limit lower="-3.0" upper="3.14" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis4_link">
+      <xacro:cylinder_inertial radius="0.075" length="${wrist_1_length}" mass="${wrist_1_mass}">
+        <origin xyz="0.0 0.0 ${wrist_1_length/2}" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis4_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis4_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!--joint4 + joint5 = 0.425-->
+    <joint name="axis5_joint" type="revolute">
+      <origin xyz="0 -0.06 0.2136" rpy="0 1.57 0" />
+      <parent link="axis4_link" />
+      <child link="axis5_link" />
+      <axis xyz="0 1 0" />
+      <limit lower="-2.09" upper="0.77" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis5_link">
+      <xacro:cylinder_inertial radius="0.075" length="${wrist_2_length}" mass="${wrist_2_mass}">
+        <origin xyz="0.0 0.06 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis5_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis5_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="axis6_joint" type="revolute">
+      <origin xyz="0 0.06 0" rpy="0 0 0" />
+      <parent link="axis5_link" />
+      <child link="axis6_link" />
+      <axis xyz="0 0 1" />
+      <limit lower="-3.14" upper="3.14" effort="54.0" velocity="3.2" />
+    </joint>
+
+    <link name="axis6_link">
+      <xacro:cylinder_inertial radius="0.055" length="${wrist_3_length}" mass="${wrist_3_mass}">
+        <origin xyz="0.0 0.0 0.0859" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <collision>
+        <!--0.0794 - 0.0035 gap - 0.03 width of camera aidded structure-->
+        <origin xyz="0 0 0.0459" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis6_link.STL" />
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0.0459" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://scorpio_description/meshes/arm/axis6_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+    </link>
+
+
+    <!--joint6 to the first silver line is 0.0794 + gripper length 0.26042 -->
+    <joint name="eef_joint" type="fixed">
+      <!--origin xyz="0 0 0.33982" rpy="0 0 0" /-->
+      <origin xyz="0 0 0.0794" rpy="0 0 0" />
+      <parent link="axis6_link" />
+      <child link="eef_link" />
+    </joint>
+
+    <link name="eef_link"/>
+
+    <!-- Intel realsense-->
+    <xacro:sensor_d435 parent="axis6_link">
+      <!--origin xyz="-0.055 0.04 0.14682" rpy="0 -1.5708 0"/--> <!--real measure for competition version-->
+      <origin xyz="-0.0425 0.035 0.12182" rpy="0 -1.5708 0"/>
+    </xacro:sensor_d435>
+
+    <xacro:arm_transmission prefix="axis1" />
+    <xacro:arm_transmission prefix="axis2" />
+    <xacro:arm_transmission prefix="axis3" />
+    <xacro:arm_transmission prefix="axis4" />
+    <xacro:arm_transmission prefix="axis5" />
+    <xacro:arm_transmission prefix="axis6" />
+  </xacro:macro>
+</robot>

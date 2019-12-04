@@ -1,0 +1,7 @@
+<launch>
+  <!-- Ros Control -->
+  <include file="$(find ros_arm_ros_control)/launch/ros_arm_ros_control.launch"/>
+
+  <!-- Moveit real execution -->
+  <include file="$(find ros_arm_ros_control)/launch/ros_arm_moveit_execution.launch"/>
+</launch>

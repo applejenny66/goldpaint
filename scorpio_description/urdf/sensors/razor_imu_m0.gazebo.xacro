@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="razor_imu_m0_gazebo" params="ros_topic update_rate ns">
+    <gazebo>
+      <plugin name="imu_link_controller" filename="libgazebo_ros_imu.so">
+        <robotNamespace>/${ns}</robotNamespace>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>${update_rate}</updateRate> 
+        <bodyName>imu_link</bodyName>
+        <topicName>${ros_topic}</topicName>
+        <gaussianNoise>2.89e-08</gaussianNoise>
+        <xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+        <!--serviceName>/imu_link_imu</serviceName-->
+        <!--interface:position name="imu_position"/-->
+      </plugin>
+    </gazebo>
+  </xacro:macro>
+</robot>
+

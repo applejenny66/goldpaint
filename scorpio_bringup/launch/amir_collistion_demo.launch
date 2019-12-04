@@ -1,0 +1,4 @@
+<launch>
+  <node name="repeater" pkg="scorpio_bringup" type="repeat_move.py" output="screen"/>
+  <node name="stopper" pkg="scorpio_bringup" type="stop.py"/>
+</launch>

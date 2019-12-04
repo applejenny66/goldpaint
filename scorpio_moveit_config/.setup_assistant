@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: scorpio_description
+    relative_path: robots/scorpio.urdf.xacro
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/scorpio.srdf
+  CONFIG:
+    author_name: Shannon
+    author_email: r07921001@ntu.edu.tw
+    generated_timestamp: 1567672367

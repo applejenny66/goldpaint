@@ -1,0 +1,22 @@
+<launch>
+
+  <!--Use your own URDF model-->
+  <arg name="model" default="$(find ros_arm_description)/robots/ros_arm_description.urdf"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+
+  <rosparam command="load" file="$(find ros_arm_ros_control)/config/ros_arm_ros_control.yaml"/>
+  <rosparam command="load" file="$(find ros_arm_ros_control)/config/ros_arm_config.yaml"/>
+
+  <!--Spawn Controller-->
+  <node name="ros_arm_controller_spawner" pkg="controller_manager" type="spawner"
+    args="joint_state_controller
+          arm_controller"/>
+
+  <!--Main control node-->
+  <node name="ros_arm_ros_control" pkg="ros_arm_ros_control" type="ros_arm_ros_control"
+    output="screen" respawn="true" respawn_delay="3"/>
+
+  <!-- Remap follow_joint_trajectory -->
+  <remap from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
+
+</launch>

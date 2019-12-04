@@ -1,0 +1,17 @@
+# define default frame for point cloud
+base_frame: "/camera_link"
+arm_frame: "/base_footprint"
+topic_img: "/camera/color/image_raw"
+topic_pc: "/camera/depth_registered/points"
+
+# define approach direction of gripper
+gripper_approach_vector: [1,0,0]
+
+# define default gripper_width factor
+gripper_width: 2
+
+# parameters
+# pc filter height
+bbox_factor: 0.5
+# search area increase factor
+search_area: 2.8

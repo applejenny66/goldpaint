@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="ns" default="scorpio/mmp0"/>
+    <arg name="rviz" default="false"/>
+    <arg name="rqt" default="false"/>
+
+    <!--Spawn Robot-->
+    <param name="robot_description" command="rosrun xacro xacro.py '$(find scorpio_description)/robots/scorpio.urdf.xacro'" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher"/>
+
+    <!--Spawn Controller-->
+    <rosparam command="load" file="$(find scorpio_arm_ros_control)/config/controller.yaml"/>
+    <node name="scorpio_controller_spawner" pkg="controller_manager" type="spawner"
+      args="joint_state_controller
+            arm_controller
+            mobile_base_controller"/>
+
+    <!--Main control node 8 axis-->
+    <node name="scorpio_all_ros_control" pkg="scorpio_arm_ros_control" type="scorpio_arm_ros_control"
+      output="screen" respawn="true" respawn_delay="3"/>
+
+    <!--moveit related-->
+    <include file="$(find scorpio_moveit_config)/launch/scorpio_moveit_planning_execution.launch"/>
+
+    <!--Laser ros driver-->
+    <include file="$(find scorpio_bringup)/launch/hokuyo.launch"/>
+    <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+  		<param name="destination_frame" value="/base_link"/>
+  		<param name="cloud_destination_topic" value="/merged_cloud"/>
+  		<param name="scan_destination_topic" value="/scan_multi"/>
+      <param name="laserscan_topics" value ="/front_scan /back_scan" /> <!-- LIST OF THE LASER SCAN TOPICS TO SUBSCRIBE -->
+  	</node>
+
+    <!--Camera ros driver-->
+    <include file="$(find realsense2_camera)/launch/rs_rgbd.launch"/>
+
+    <!--Gripper driver-->
+    <param name="gripper_device" value="/dev/gripper" />
+    <node name="gripper_control_server" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperRtuNode.py"/>
+    <node name="gripper_control_client" pkg="robotiq_2f_gripper_control" type="gripper_ser.py"/>
+
+    <group if="$(arg rqt)">
+      <!--Gui steering console (Optional)-->
+      <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+        <param name="default_topic" value="/mobile_base_controller/cmd_vel"/>
+        <param name="default_vx_max" value="1.0"/>
+        <param name="default_vx_min" value="-1.0"/>
+      </node>
+
+      <!-- Gui arm (Optional)-->
+      <node name="rqt_joint_trajectory_controller" pkg="rqt_joint_trajectory_controller" type="rqt_joint_trajectory_controller"/>
+    </group>
+
+    <group if="$(arg rviz)">
+      <!-- Gui Rviz   -->
+      <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scorpio_bringup)/rviz/sghero_bringup.rviz"/>
+      <!-- Gui Moveit-->
+      <include file="$(find scorpio_moveit_config)/launch/moveit_rviz.launch">
+        <arg name="config" value="true"/>
+      </include>
+    </group>
+
+</launch>

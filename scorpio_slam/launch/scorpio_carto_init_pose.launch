@@ -1,0 +1,19 @@
+<!--rosservice call /finish_trajectory 1-->
+
+<launch>
+  <arg name="real" default="true"/>
+
+  <arg name="lua_filename_local" default="sghero_allcarto_locali_sim.lua" unless="$(arg real)"/>
+  <arg name="map_filename" default="$(find scorpio_gazebo)/map/test.bag.pbstream" unless="$(arg real)"/>
+  <arg name="lua_filename_local" default="sghero_allcarto_locali_real.lua" if="$(arg real)"/>
+  <arg name="map_filename" default="$(find scorpio_gazebo)/map/test.bag.pbstream" if="$(arg real)"/>
+
+  <node pkg="cartographer_ros" type="cartographer_start_trajectory"
+    name="cartographer_start_trajectory_node" args="
+        ...
+        -configuration_directory '$(find scorpio_slam)/config'
+        -configuration_basename '$(arg lua_filename_local)'
+        -initial_pose '{to_trajectory_id = 0, relative_pose = { translation = { -4.54, 7.55, 0}, rotation = {0., 0., 4.71, } } }'"
+    output="screen">
+  </node>
+</launch>

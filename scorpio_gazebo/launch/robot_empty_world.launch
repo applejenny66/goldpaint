@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<launch>
+  <!--arg name="world_name" default="worlds/empty.world"/-->
+  <arg name="world_name" default="$(find scorpio_gazebo)/worlds/iceira304.world"/>
+  <arg name="gazebo" default="false" doc="Starts gazebo gui" />
+  <arg name="rviz" default="true" doc="Starts rviz gui"/>
+  <arg name="rqt" default="true" doc="Starts rqt gui"/>
+  <arg name="robot" default="scorpio" doc="scorpio, arm, or base"/>
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+    <arg name="paused" value="true" doc="Starts gazebo in paused mode, and spawn model in unpause"/>
+    <arg name="gui" value="$(arg gazebo)"/>
+  </include>
+
+  <!-- send robot urdf to param server -->
+  <param name="robot_description" command="python $(find xacro)/xacro.py '$(find scorpio_description)/robots/$(arg robot).urdf.xacro'" />
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model scorpio
+    -unpause" respawn="false" output="screen" />
+
+  <!-- Robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+  <!-- spawn/load joint controllers -->
+  <rosparam file="$(find scorpio_gazebo)/controller/joint_state_controller.yaml" command="load"/>
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
+  <!-- spawn/load arm controllers -->
+  <rosparam file="$(find scorpio_gazebo)/controller/arm_controller.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
+
+  <!-- spawn/load gripper controllers -->
+  <!--rosparam file="$(find scorpio_gazebo)/controller/gripper_controller.yaml" command="load"/>
+  <node name="gripper_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn gripper_controller" respawn="false" output="screen"/-->
+
+  <!-- spawn/load base controllers -->
+  <rosparam file="$(find scorpio_gazebo)/controller/mobile_base_controller.yaml" command="load"/>
+  <node name="mobile_base_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn mobile_base_controller" respawn="false" output="screen"/>
+
+  <!-- Merge laser -->
+  <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+		<param name="destination_frame" value="/base_link"/>
+		<param name="cloud_destination_topic" value="/merged_cloud"/>
+		<param name="scan_destination_topic" value="/scan_multi"/>
+    <param name="laserscan_topics" value ="/front_scan /back_scan" /> <!-- LIST OF THE LASER SCAN TOPICS TO SUBSCRIBE -->
+	</node>
+
+  <group if="$(arg rqt)">
+    <!--Gui steering console (Optional)-->
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+      <param name="default_topic" value="/mobile_base_controller/cmd_vel"/>
+      <param name="default_vx_max" value="1.0"/>
+      <param name="default_vx_min" value="-1.0"/>
+    </node>
+    <!-- Gui arm (Optional)-->
+    <node name="rqt_joint_trajectory_controller" pkg="rqt_joint_trajectory_controller" type="rqt_joint_trajectory_controller"/>
+  </group>
+
+  <group if="$(arg rviz)">
+    <!-- Gui Rviz   -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scorpio_gazebo)/rviz/empty_world.rviz"/>
+  </group>
+
+</launch>

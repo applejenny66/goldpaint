@@ -1,0 +1,13 @@
+<launch>
+	<!-- Load from yaml files in config folder -->
+	<rosparam command="load" file="$(find haf_grasping)/config/config.yaml" />
+
+	<!-- Start haf client node -->
+	<!--node name="calc_grasppoints_svm_action_server" pkg="haf_grasping" type="calc_grasppoints_action_server"/-->
+	<node name="calc_grasppoints_svm_action_server" pkg="haf_grasping" type="calc_grasppoints_action_server"/>
+
+	<!-- This will be replaced by artag -->
+	<!--node name="desk_tf" pkg="tf" type="static_transform_publisher" args="2.0 0.0 0.0 0 0 0 $(arg base_frame) $(arg arm_frame) 100"/-->
+	<!--node name="desk_tf" pkg="tf" type="static_transform_publisher" args="1.575 0.02 0.78 3.14 1.57 0 $(arg base_frame) $(arg arm_frame) 100"/-->
+	<!--node name="floor_tf" pkg="tf" type="static_transform_publisher" args="-1.0 0.0 0.0 0 -1.57 0 camera_link floor_tf 100"/-->
+</launch>

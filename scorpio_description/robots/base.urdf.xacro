@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot name="scorpio" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="ns" default=""/>
+  <xacro:include filename="$(find scorpio_description)/urdf/base/base.urdf.xacro"/>
+
+  <!-- gazebo plugin -->
+  <xacro:include filename="$(find scorpio_description)/urdf/common.gazebo.xacro"/>
+
+  <!-- robot base and wheel -->
+  <xacro:scorpio_base ns="$(arg ns)"/>
+
+  <!--5cm per grid on car--> <!--surface to ground is 0.455m-->
+  <joint name="base_surface_joint" type="fixed">
+    <origin xyz="-0.375 0.125 0.209" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="surface_link" />
+  </joint>
+  <link name="surface_link"/>
+
+</robot>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find adbot_description)/urdf/sensors/sonar.gazebo.xacro" />
+  <xacro:macro name="sonar" params="id x y yaw ns">
+    <joint name="sonar${id}_joint" type="fixed">
+      <origin rpy="0 0 ${yaw}" xyz="${x} ${y} -0.1" />
+      <parent link="base_link"/>
+      <child link="sonar${id}_link"/>
+    </joint>
+
+    <link name="sonar${id}_link">
+      <inertial>
+        <mass value="1e-5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.01 0.01 0.01"/>
+        </geometry>
+      </collision>
+    </link>
+  
+    <!-- extensions -->
+    <xacro:sonar_gazebo id="${id}" ros_topic="sonar${id}" update_rate="2" ns="${ns}"/>
+  </xacro:macro>
+</robot>
+  
